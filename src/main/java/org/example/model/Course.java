@@ -8,13 +8,17 @@ import java.util.Objects;
 @Table(name = "course")
 public class Course {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "course_id")
     private Integer id;
 
     private String name;
 
     private Integer duration;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "instructor_id")
+    private Instructor instructor;
 
     public void setId(Integer id) {
         this.id = id;
@@ -38,6 +42,14 @@ public class Course {
 
     public void setDuration(Integer duration) {
         this.duration = duration;
+    }
+
+    public Instructor getInstructor() {
+        return instructor;
+    }
+
+    public void setInstructor(Instructor instructor) {
+        this.instructor = instructor;
     }
 
     @Override

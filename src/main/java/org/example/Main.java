@@ -15,8 +15,8 @@ public class Main {
 
     @Autowired
 //    @Qualifier("jdbcCourseService")
-//    @Qualifier("hibernateCourseService")
-    @Qualifier("jpaCourseService")
+    @Qualifier("hibernateCourseService")
+//    @Qualifier("jpaCourseService")
     CourseService courseService;
 
     @PostConstruct

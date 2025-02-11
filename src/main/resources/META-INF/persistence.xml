@@ -12,6 +12,9 @@
 
         <!-- The <class/> element registers our annotated entity class. -->
         <class>org.example.model.Course</class>
+        <class>org.example.model.Student</class>
+        <class>org.example.model.Instructor</class>
+        <class>org.example.model.Enrollment</class>
 
         <properties>
             <!-- Database connection settings -->
