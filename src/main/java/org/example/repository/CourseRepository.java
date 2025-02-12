@@ -10,5 +10,5 @@ public interface CourseRepository {
 
     List<Course> findAll(int page, int size);
 
-    List<CourseStat> getCourseStats();
+    List<CourseStat> getCourseStats(int opt);
 }

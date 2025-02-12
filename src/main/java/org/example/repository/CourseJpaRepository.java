@@ -37,79 +37,83 @@ public class CourseJpaRepository implements CourseRepository {
     }
 
     @Override
-    public List<CourseStat> getCourseStats() {
+    public List<CourseStat> getCourseStats(int opt) {
+        return switch (opt) {
+            // Opt 1: JPQL + JPA Tuple
+            case 1 -> getCourseStatsUsingJpqlAndTuple();
+            // Opt 2: JPQL + Constructor Expression
+            case 2 -> getCourseStatsUsingJpqlAndConstructorExpression();
+            // Opt 3: Native SQL + JPA Tuple
+            case 3 -> getCourseStatsUsingNativeQueryAndTuple();
+            // Opt 4: @NamedNativeQuery + @SqlResultSetMapping
+            case 4 -> List.of();
+            default -> List.of();
+        };
+    }
+
+    private List<CourseStat> getCourseStatsUsingJpqlAndTuple() {
         try (EntityManager em = db.getEntityManager()) {
-            int opt = 1;
-            return switch (opt) {
-                // Opt 1: JPQL + JPA Tuple
-                case 1 -> getCourseStatsUsingJpqlAndTuple(em);
-                // Opt 2: JPQL + Constructor Expression
-                case 2 -> getCourseStatsUsingJpqlAndConstructorExpression(em);
-                // Opt 3: Native SQL + JPA Tuple
-                case 3 -> getCourseStatsUsingNativeQueryAndTuple(em);
-                // Opt 4: @NamedNativeQuery + @SqlResultSetMapping
-                case 4 -> List.of();
-                default -> List.of();
-            };
+            TypedQuery<Tuple> query = em.createQuery("""
+                    select
+                        c.id courseId,
+                        c.name courseName,
+                        count(e.student.id) studentCount
+                    from Course c
+                    left join Enrollment e on e.course.id = c.id
+                    group by c.id, c.name
+                    """, Tuple.class);
+            List<Tuple> rs = query.getResultList();
+            return rs.stream()
+                    .map(tuple -> {
+                        CourseStat courseStat = new CourseStat();
+                        courseStat.setCourseId(tuple.get("courseId", Integer.class));
+                        courseStat.setCourseName(tuple.get("courseName", String.class));
+                        courseStat.setStudentCount(tuple.get("studentCount", Long.class));
+                        return courseStat;
+                    })
+                    .toList();
         }
     }
 
-    private List<CourseStat> getCourseStatsUsingJpqlAndTuple(EntityManager em) {
-        TypedQuery<Tuple> query = em.createQuery("""
-                select
-                    c.id courseId,
-                    c.name courseName,
-                    count(e.student.id) studentCount
-                from Course c
-                left join Enrollment e on e.course.id = c.id
-                group by c.id, c.name
-                """, Tuple.class);
-        List<Tuple> rs = query.getResultList();
-        return rs.stream()
-                .map(tuple -> {
-                    CourseStat courseStat = new CourseStat();
-                    courseStat.setCourseId(tuple.get("courseId", Integer.class));
-                    courseStat.setCourseName(tuple.get("courseName", String.class));
-                    courseStat.setStudentCount(tuple.get("studentCount", Long.class));
-                    return courseStat;
-                })
-                .toList();
+    private List<CourseStat> getCourseStatsUsingJpqlAndConstructorExpression() {
+        // count(e.student.id) returns Long -> DTO is depend on JPQL
+        try (EntityManager em = db.getEntityManager()) {
+            return em.createQuery("""
+                            select new org.example.model.dto.CourseStat(
+                                c.id,
+                                c.name,
+                                count(e.student.id)
+                            )
+                            from Course c
+                            left join Enrollment e on e.course.id = c.id
+                            group by c.id, c.name
+                            """, CourseStat.class)
+                    .getResultList();
+        }
     }
 
-    private List<CourseStat> getCourseStatsUsingJpqlAndConstructorExpression(EntityManager em) {
-        // count(e.student.id) returns Long -> dependent JPQL
-        return em.createQuery("""
-                        select new org.example.model.dto.CourseStat(
-                            c.id,
-                            c.name,
-                            count(e.student.id)
-                        )
-                        from Course c
-                        left join Enrollment e on e.course.id = c.id
-                        group by c.id, c.name
-                        """, CourseStat.class)
-                .getResultList();
-    }
-
-    private List<CourseStat> getCourseStatsUsingNativeQueryAndTuple(EntityManager em) {
-        Query query = em.createNativeQuery("""
-                SELECT
-                    c.course_id courseId,
-                    c.name courseName,
-                    COUNT(e.student_id) studentCount
-                FROM course c
-                LEFT JOIN enrollment e ON c.course_id = e.course_id
-                GROUP BY c.course_id, c.name
-                """, Tuple.class);
-        List<Tuple> rs = query.getResultList();
-        return rs.stream()
-                .map(tuple -> {
-                    CourseStat courseStat = new CourseStat();
-                    courseStat.setCourseId(tuple.get("courseId", Integer.class));
-                    courseStat.setCourseName(tuple.get("courseName", String.class));
-                    courseStat.setStudentCount(tuple.get("studentCount", Long.class));
-                    return courseStat;
-                })
-                .toList();
+    private List<CourseStat> getCourseStatsUsingNativeQueryAndTuple() {
+        try (EntityManager em = db.getEntityManager()) {
+            Query query = em.createNativeQuery("""
+                    SELECT
+                        c.course_id courseId,
+                        c.name courseName,
+                        COUNT(e.student_id) studentCount
+                    FROM course c
+                    LEFT JOIN enrollment e ON c.course_id = e.course_id
+                    GROUP BY c.course_id, c.name
+                    """, Tuple.class);
+            List<Tuple> rs = query.getResultList();
+            return rs.stream()
+                    .map(tuple -> {
+                        CourseStat courseStat = new CourseStat();
+                        courseStat.setCourseId(tuple.get("courseId", Integer.class));
+                        courseStat.setCourseName(tuple.get("courseName", String.class));
+                        // COUNT(e.student_id) returns int -> casting
+                        courseStat.setStudentCount(tuple.get("studentCount", Integer.class).longValue());
+                        return courseStat;
+                    })
+                    .toList();
+        }
     }
 }

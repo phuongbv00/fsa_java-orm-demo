@@ -40,7 +40,6 @@ CREATE TABLE enrollment
     FOREIGN KEY (course_id) REFERENCES course (course_id) ON DELETE CASCADE
 );
 
--- Tạo indexes
 CREATE INDEX idx_course_instructor ON course (instructor_id);
 CREATE INDEX idx_enrollment_student ON enrollment (student_id);
 CREATE INDEX idx_enrollment_course ON enrollment (course_id);

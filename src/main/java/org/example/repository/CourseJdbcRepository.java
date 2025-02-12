@@ -44,7 +44,7 @@ public class CourseJdbcRepository implements CourseRepository {
     }
 
     @Override
-    public List<CourseStat> getCourseStats() {
+    public List<CourseStat> getCourseStats(int opt) {
         try (Connection conn = db.getConnection()) {
             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM func_get_course_stats()");
             ResultSet rs = stmt.executeQuery();

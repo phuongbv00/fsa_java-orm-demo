@@ -34,7 +34,7 @@ public class CourseHibernateRepository implements CourseRepository {
     }
 
     @Override
-    public List<CourseStat> getCourseStats() {
+    public List<CourseStat> getCourseStats(int opt) {
         return List.of();
     }
 }
