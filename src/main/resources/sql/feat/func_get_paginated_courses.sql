@@ -1,6 +1,6 @@
-DROP FUNCTION IF EXISTS FUNC_GET_PAGINATED_COURSES;
+DROP FUNCTION IF EXISTS func_get_paginated_courses;
 
-CREATE FUNCTION FUNC_GET_PAGINATED_COURSES(@page INT, @size INT)
+CREATE FUNCTION func_get_paginated_courses(@page INT, @size INT)
     RETURNS TABLE
         AS RETURN
         SELECT *
@@ -9,4 +9,4 @@ CREATE FUNCTION FUNC_GET_PAGINATED_COURSES(@page INT, @size INT)
         OFFSET (@page - 1) * @size ROWS FETCH NEXT @size ROWS ONLY;
 
 SELECT *
-FROM FUNC_GET_PAGINATED_COURSES(2, 1);
+FROM func_get_paginated_courses(2, 1);

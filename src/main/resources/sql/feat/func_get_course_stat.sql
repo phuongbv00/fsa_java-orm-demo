@@ -1,12 +1,12 @@
-DROP FUNCTION IF EXISTS FUNC_GET_COURSE_STAT;
+DROP FUNCTION IF EXISTS func_get_course_stats;
 
-CREATE FUNCTION FUNC_GET_COURSE_STAT()
+CREATE FUNCTION func_get_course_stats()
     RETURNS TABLE
         AS RETURN
         SELECT crs.course_id, crs.name, COUNT(enrl.student_id) as std_count
         FROM course crs
-                 JOIN enrollment enrl ON crs.course_id = enrl.course_id
+                 LEFT JOIN enrollment enrl ON crs.course_id = enrl.course_id
         GROUP BY crs.course_id, crs.name
 
 SELECT *
-FROM FUNC_GET_COURSE_STAT();
+FROM func_get_course_stats();
