@@ -3,7 +3,6 @@ package org.example.repository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.Tuple;
-import jakarta.persistence.TypedQuery;
 import org.example.config.db.JPAClient;
 import org.example.model.Course;
 import org.example.model.dto.CourseStat;
@@ -57,17 +56,16 @@ public class CourseJpaRepository implements CourseRepository {
 
     private List<CourseStat> getCourseStatsUsingJpqlAndTuple() {
         try (EntityManager em = db.getEntityManager()) {
-            TypedQuery<Tuple> query = em.createQuery("""
-                    select
-                        c.id courseId,
-                        c.name courseName,
-                        count(e.student.id) studentCount
-                    from Course c
-                    left join Enrollment e on e.course.id = c.id
-                    group by c.id, c.name
-                    """, Tuple.class);
-            List<Tuple> rs = query.getResultList();
-            return rs.stream()
+            return em.createQuery("""
+                            select
+                                c.id courseId,
+                                c.name courseName,
+                                count(e.student.id) studentCount
+                            from Course c
+                            left join Enrollment e on e.course.id = c.id
+                            group by c.id, c.name
+                            """, Tuple.class)
+                    .getResultStream()
                     .map(tuple -> {
                         CourseStat courseStat = new CourseStat();
                         courseStat.setCourseId(tuple.get("courseId", Integer.class));
