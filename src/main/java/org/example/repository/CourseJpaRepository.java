@@ -46,7 +46,7 @@ public class CourseJpaRepository implements CourseRepository {
             // Opt 3: Native SQL + JPA Tuple
             case 3 -> getCourseStatsUsingNativeQueryAndTuple();
             // Opt 4: @NamedNativeQuery + @SqlResultSetMapping
-            case 4 -> List.of();
+            case 4 -> getCourseStatsUsingMappingAnnotations();
             default -> List.of();
         };
     }
@@ -114,6 +114,12 @@ public class CourseJpaRepository implements CourseRepository {
                         return courseStat;
                     })
                     .toList();
+        }
+    }
+
+    private List<CourseStat> getCourseStatsUsingMappingAnnotations() {
+        try (EntityManager em = db.getEntityManager()) {
+            return em.createNamedQuery("getCourseStats", CourseStat.class).getResultList();
         }
     }
 }

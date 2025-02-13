@@ -1,12 +1,37 @@
 package org.example.model;
 
 import jakarta.persistence.*;
+import org.example.model.dto.CourseStat;
 
 import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "course")
+@NamedNativeQuery(
+        name = "getCourseStats",
+        query = """
+                SELECT
+                    c.course_id courseId,
+                    c.name courseName,
+                    COUNT(e.student_id) studentCount
+                FROM course c
+                LEFT JOIN enrollment e ON c.course_id = e.course_id
+                GROUP BY c.course_id, c.name
+                """,
+        resultSetMapping = "getCourseStatsRsMapping"
+)
+@SqlResultSetMapping(
+        name = "getCourseStatsRsMapping",
+        classes = @ConstructorResult(
+                targetClass = CourseStat.class,
+                columns = {
+                        @ColumnResult(name = "courseId"),
+                        @ColumnResult(name = "courseName"),
+                        @ColumnResult(name = "studentCount", type = Long.class)
+                }
+        )
+)
 public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
