@@ -7,6 +7,8 @@ import jakarta.persistence.TypedQuery;
 import org.example.config.db.JPAClient;
 import org.example.model.Course;
 import org.example.model.dto.CourseStat;
+import org.hibernate.Session;
+import org.hibernate.jpa.spi.NativeQueryConstructorTransformer;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -47,6 +49,8 @@ public class CourseJpaRepository implements CourseRepository {
             case 3 -> getCourseStatsUsingNativeQueryAndTuple();
             // Opt 4: @NamedNativeQuery + @SqlResultSetMapping
             case 4 -> getCourseStatsUsingNativeQueryAndMappingAnnotations();
+            // Opt 5: (Hibernate APIs) Native SQL + TupleTransformer
+            case 5 -> getCourseStatsUsingNativeQueryAndTupleTransformer();
             default -> List.of();
         };
     }
@@ -119,6 +123,23 @@ public class CourseJpaRepository implements CourseRepository {
     private List<CourseStat> getCourseStatsUsingNativeQueryAndMappingAnnotations() {
         try (EntityManager em = db.getEntityManager()) {
             return em.createNamedQuery("getCourseStats", CourseStat.class).getResultList();
+        }
+    }
+
+    private List<CourseStat> getCourseStatsUsingNativeQueryAndTupleTransformer() {
+        try (EntityManager em = db.getEntityManager()) {
+            return em.unwrap(Session.class)
+                    .createNativeQuery("""
+                            SELECT
+                                c.course_id courseId,
+                                c.name courseName,
+                                CAST(COUNT(e.student_id) AS BIGINT) studentCount
+                            FROM course c
+                            LEFT JOIN enrollment e ON c.course_id = e.course_id
+                            GROUP BY c.course_id, c.name
+                            """, Object[].class)
+                    .setTupleTransformer(new NativeQueryConstructorTransformer<>(CourseStat.class))
+                    .getResultList();
         }
     }
 }

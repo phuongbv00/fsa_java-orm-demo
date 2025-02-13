@@ -43,7 +43,7 @@ public class RepositoryTest {
     private Stream<Arguments> provideRepositoriesWithOptions() {
         return Stream.of(
                 Arguments.of(courseJdbcRepository, new int[]{1}),
-                Arguments.of(courseJpaRepository, new int[]{1, 2, 3, 4}),
+                Arguments.of(courseJpaRepository, new int[]{1, 2, 3, 4, 5}),
                 Arguments.of(courseHibernateRepository, new int[]{1})
         ).flatMap(arg -> {
             CourseRepository repository = (CourseRepository) arg.get()[0];
