@@ -46,7 +46,7 @@ public class CourseJpaRepository implements CourseRepository {
             // Opt 3: Native SQL + JPA Tuple
             case 3 -> getCourseStatsUsingNativeQueryAndTuple();
             // Opt 4: @NamedNativeQuery + @SqlResultSetMapping
-            case 4 -> getCourseStatsUsingMappingAnnotations();
+            case 4 -> getCourseStatsUsingNativeQueryAndMappingAnnotations();
             default -> List.of();
         };
     }
@@ -76,7 +76,7 @@ public class CourseJpaRepository implements CourseRepository {
     }
 
     private List<CourseStat> getCourseStatsUsingJpqlAndConstructorExpression() {
-        // count(e.student.id) returns Long -> DTO is depend on JPQL
+        // count(e.student.id) returns Long -> DTO depends on JPQL
         try (EntityManager em = db.getEntityManager()) {
             return em.createQuery("""
                             select new org.example.model.dto.CourseStat(
@@ -98,7 +98,7 @@ public class CourseJpaRepository implements CourseRepository {
                     SELECT
                         c.course_id courseId,
                         c.name courseName,
-                        COUNT(e.student_id) studentCount
+                        CAST(COUNT(e.student_id) AS BIGINT) studentCount
                     FROM course c
                     LEFT JOIN enrollment e ON c.course_id = e.course_id
                     GROUP BY c.course_id, c.name
@@ -109,15 +109,14 @@ public class CourseJpaRepository implements CourseRepository {
                         CourseStat courseStat = new CourseStat();
                         courseStat.setCourseId(tuple.get("courseId", Integer.class));
                         courseStat.setCourseName(tuple.get("courseName", String.class));
-                        // COUNT(e.student_id) returns int -> casting
-                        courseStat.setStudentCount(tuple.get("studentCount", Integer.class).longValue());
+                        courseStat.setStudentCount(tuple.get("studentCount", Long.class));
                         return courseStat;
                     })
                     .toList();
         }
     }
 
-    private List<CourseStat> getCourseStatsUsingMappingAnnotations() {
+    private List<CourseStat> getCourseStatsUsingNativeQueryAndMappingAnnotations() {
         try (EntityManager em = db.getEntityManager()) {
             return em.createNamedQuery("getCourseStats", CourseStat.class).getResultList();
         }

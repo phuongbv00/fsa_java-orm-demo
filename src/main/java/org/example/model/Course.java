@@ -14,7 +14,7 @@ import java.util.Objects;
                 SELECT
                     c.course_id courseId,
                     c.name courseName,
-                    COUNT(e.student_id) studentCount
+                    CAST(COUNT(e.student_id) AS BIGINT) studentCount
                 FROM course c
                 LEFT JOIN enrollment e ON c.course_id = e.course_id
                 GROUP BY c.course_id, c.name
@@ -28,7 +28,7 @@ import java.util.Objects;
                 columns = {
                         @ColumnResult(name = "courseId"),
                         @ColumnResult(name = "courseName"),
-                        @ColumnResult(name = "studentCount", type = Long.class)
+                        @ColumnResult(name = "studentCount")
                 }
         )
 )
