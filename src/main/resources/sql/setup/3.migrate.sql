@@ -1,0 +1,14 @@
+ALTER TABLE enrollment
+ADD status NVARCHAR(255) DEFAULT 'PENDING';
+
+ALTER TABLE course
+ADD start_date DATETIMEOFFSET;
+
+ALTER TABLE course
+ADD end_date DATETIMEOFFSET;
+
+ALTER TABLE course
+ADD capacity INT;
+
+ALTER TABLE enrollment
+ADD comment NVARCHAR(255);

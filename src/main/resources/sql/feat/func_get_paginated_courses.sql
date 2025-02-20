@@ -1,3 +1,4 @@
+-- REQUIRES RE-CREATING WHEN TABLE COLUMN IS CHANGED
 DROP FUNCTION IF EXISTS func_get_paginated_courses;
 
 CREATE FUNCTION func_get_paginated_courses(@page INT, @size INT)

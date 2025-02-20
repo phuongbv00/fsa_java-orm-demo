@@ -1,8 +1,9 @@
-package org.example.model;
+package org.example.model.entity;
 
 import jakarta.persistence.*;
 import org.example.model.dto.CourseStat;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,7 +41,13 @@ public class Course {
 
     private String name;
 
-    private Integer duration;
+    private Integer capacity;
+
+    @Column(name = "start_date")
+    private Instant startDate;
+
+    @Column(name = "end_date")
+    private Instant endDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "instructor_id")
@@ -65,12 +72,28 @@ public class Course {
         this.name = name;
     }
 
-    public Integer getDuration() {
-        return duration;
+    public Integer getCapacity() {
+        return capacity;
     }
 
-    public void setDuration(Integer duration) {
-        this.duration = duration;
+    public void setCapacity(Integer capacity) {
+        this.capacity = capacity;
+    }
+
+    public Instant getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Instant startDate) {
+        this.startDate = startDate;
+    }
+
+    public Instant getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Instant endDate) {
+        this.endDate = endDate;
     }
 
     public Instructor getInstructor() {
@@ -92,10 +115,11 @@ public class Course {
     @Override
     public String toString() {
         return "Course{" +
-                "id=" + id +
+                "endDate=" + endDate +
+                ", startDate=" + startDate +
+                ", capacity=" + capacity +
                 ", name='" + name + '\'' +
-                ", duration=" + duration +
-                ", hash=" + hashCode() +
+                ", id=" + id +
                 '}';
     }
 
@@ -103,11 +127,11 @@ public class Course {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Course course = (Course) o;
-        return Objects.equals(id, course.id) && Objects.equals(name, course.name) && Objects.equals(duration, course.duration);
+        return Objects.equals(id, course.id) && Objects.equals(name, course.name) && Objects.equals(capacity, course.capacity) && Objects.equals(startDate, course.startDate) && Objects.equals(endDate, course.endDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, duration);
+        return Objects.hash(id, name, capacity, startDate, endDate);
     }
 }

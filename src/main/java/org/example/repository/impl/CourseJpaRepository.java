@@ -1,11 +1,12 @@
-package org.example.repository;
+package org.example.repository.impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.Tuple;
 import org.example.config.db.JPAClient;
-import org.example.model.Course;
+import org.example.model.entity.Course;
 import org.example.model.dto.CourseStat;
+import org.example.repository.CourseRepository;
 import org.hibernate.Session;
 import org.hibernate.jpa.spi.NativeQueryConstructorTransformer;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,15 @@ public class CourseJpaRepository implements CourseRepository {
         };
     }
 
+    @Override
+    public void save(Course course) {
+        try (EntityManager em = db.getEntityManager()) {
+            em.getTransaction().begin();
+            em.persist(course);
+            em.getTransaction().commit();
+        }
+    }
+
     private List<CourseStat> getCourseStatsUsingJpqlAndTuple() {
         try (EntityManager em = db.getEntityManager()) {
             return em.createQuery("""
@@ -62,7 +72,7 @@ public class CourseJpaRepository implements CourseRepository {
                                 c.name courseName,
                                 count(e.student.id) studentCount
                             from Course c
-                            left join Enrollment e on e.course.id = c.id
+                            left join c.enrollments e
                             group by c.id, c.name
                             """, Tuple.class)
                     .getResultStream()
@@ -87,7 +97,7 @@ public class CourseJpaRepository implements CourseRepository {
                                 count(e.student.id)
                             )
                             from Course c
-                            left join Enrollment e on e.course.id = c.id
+                            left join c.enrollments e
                             group by c.id, c.name
                             """, CourseStat.class)
                     .getResultList();

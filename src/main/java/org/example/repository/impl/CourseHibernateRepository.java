@@ -1,8 +1,9 @@
-package org.example.repository;
+package org.example.repository.impl;
 
 import org.example.config.db.HibernateClient;
-import org.example.model.Course;
+import org.example.model.entity.Course;
 import org.example.model.dto.CourseStat;
+import org.example.repository.CourseRepository;
 import org.hibernate.Session;
 import org.hibernate.jpa.spi.NativeQueryConstructorTransformer;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,15 @@ public class CourseHibernateRepository implements CourseRepository {
     @Override
     public List<CourseStat> getCourseStats(int opt) {
         return getCourseStatsUsingNativeQueryAndTupleTransformer();
+    }
+
+    @Override
+    public void save(Course course) {
+        try (Session ss = db.getSession()) {
+            ss.getTransaction().begin();
+            ss.persist(course);
+            ss.getTransaction().commit();
+        }
     }
 
     private List<CourseStat> getCourseStatsUsingNativeQueryAndTupleTransformer() {

@@ -5,7 +5,7 @@ INSERT INTO instructor (name)
 VALUES ('Nguyễn Văn A'),
        ('Trần Thị B');
 
-INSERT INTO course (name, duration, instructor_id)
+INSERT INTO course (name, capacity, instructor_id)
 VALUES ('Java Core', 40, 1),
        ('Spring Framework', 50, 2);
 

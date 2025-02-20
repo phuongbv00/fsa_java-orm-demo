@@ -1,8 +1,9 @@
-package org.example.repository;
+package org.example.repository.impl;
 
 import org.example.config.db.JDBCClient;
-import org.example.model.Course;
+import org.example.model.entity.Course;
 import org.example.model.dto.CourseStat;
+import org.example.repository.CourseRepository;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
@@ -54,13 +55,18 @@ public class CourseJdbcRepository implements CourseRepository {
         }
     }
 
+    @Override
+    public void save(Course course) {
+
+    }
+
     private List<Course> fetchCoursesResultSet(ResultSet rs) throws SQLException {
         List<Course> courses = new ArrayList<>();
         while (rs.next()) {
             Course course = new Course();
             course.setId(rs.getInt("course_id"));
             course.setName(rs.getString("name"));
-            course.setDuration(rs.getInt("duration"));
+            course.setCapacity(rs.getInt("capacity"));
             courses.add(course);
         }
         return courses;

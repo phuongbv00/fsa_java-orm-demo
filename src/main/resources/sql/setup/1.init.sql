@@ -18,7 +18,7 @@ CREATE TABLE course
 (
     course_id     INT IDENTITY (1,1) PRIMARY KEY,
     name          NVARCHAR(255) NOT NULL UNIQUE,
-    duration      INT CHECK (duration > 0),
+    duration      INT,
     instructor_id INT           NULL,
     FOREIGN KEY (instructor_id) REFERENCES instructor (instructor_id) ON DELETE SET NULL
 );
