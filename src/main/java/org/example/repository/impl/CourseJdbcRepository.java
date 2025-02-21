@@ -1,15 +1,13 @@
 package org.example.repository.impl;
 
 import org.example.config.db.JDBCClient;
-import org.example.model.entity.Course;
 import org.example.model.dto.CourseStat;
+import org.example.model.entity.Course;
 import org.example.repository.CourseRepository;
 import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +55,22 @@ public class CourseJdbcRepository implements CourseRepository {
 
     @Override
     public void save(Course course) {
-
+        try (Connection conn = db.getConnection()) {
+            conn.setAutoCommit(false);
+            PreparedStatement stmt = conn.prepareStatement("""
+                    INSERT INTO course(name, capacity, start_date, end_date, instructor_id)
+                    VALUES (?, ?, ?, ?, ?)
+                    """);
+            stmt.setString(1, course.getName());
+            stmt.setInt(2, course.getCapacity());
+            stmt.setTimestamp(3, Timestamp.valueOf(course.getStartDate().atOffset(ZoneOffset.UTC).toLocalDateTime()));
+            stmt.setTimestamp(4, Timestamp.valueOf(course.getEndDate().atOffset(ZoneOffset.UTC).toLocalDateTime()));
+            stmt.setInt(5, course.getInstructor().getId());
+            stmt.execute();
+            conn.commit();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private List<Course> fetchCoursesResultSet(ResultSet rs) throws SQLException {

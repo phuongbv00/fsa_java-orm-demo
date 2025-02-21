@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.model.entity.Course;
+import org.example.model.entity.Instructor;
 import org.example.repository.CourseRepository;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -9,16 +11,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
-public class RepositoryTest {
-    private final Logger logger = Logger.getLogger(RepositoryTest.class.getName());
+public class CourseRepositoryTest {
+    private final Logger logger = Logger.getLogger(CourseRepositoryTest.class.getName());
 
     @Autowired
     @Qualifier("courseJdbcRepository")
@@ -74,5 +81,21 @@ public class RepositoryTest {
         var rs = courseRepository.getCourseStats(opt);
         logger.info("result: " + rs);
         assertNotNull(rs);
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideRepositories")
+    public void save(CourseRepository courseRepository) {
+        var random = new Random();
+        var now = Instant.now();
+        var instructor = new Instructor();
+        instructor.setId(1);
+        var course = new Course();
+        course.setName("test_" + now.getEpochSecond() + "_" + random.nextInt());
+        course.setCapacity(50);
+        course.setStartDate(now.plus(7, ChronoUnit.DAYS));
+        course.setEndDate(now.plus(45, ChronoUnit.DAYS));
+        course.setInstructor(instructor);
+        assertDoesNotThrow(() -> courseRepository.save(course));
     }
 }
