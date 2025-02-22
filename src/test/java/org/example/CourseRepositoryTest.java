@@ -1,12 +1,11 @@
 package org.example;
 
+import org.example.model.dto.CourseSearchReq;
 import org.example.model.entity.Course;
 import org.example.model.entity.Instructor;
 import org.example.repository.CourseRepository;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.example.repository.impl.CourseJdbcRepository;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -56,7 +55,7 @@ public class CourseRepositoryTest {
     private Stream<Arguments> provideRepositoriesWithOptions() {
         return Stream.of(
                 Arguments.of(courseJdbcRepository, new int[]{1}),
-                Arguments.of(courseJpaRepository, new int[]{1, 2, 3, 4, 5}),
+                Arguments.of(courseJpaRepository, new int[]{1, 2, 3, 4, 5, 6}),
                 Arguments.of(courseHibernateRepository, new int[]{1})
         ).flatMap(arg -> {
             CourseRepository repository = (CourseRepository) arg.get()[0];
@@ -95,6 +94,54 @@ public class CourseRepositoryTest {
         var rs = courseRepository.getCourseStats(opt);
         logger.info("result: " + rs);
         assertNotNull(rs);
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideRepositories")
+    public void findByCriteria(CourseRepository courseRepository) {
+        var criteria = new CourseSearchReq(
+                "J",
+                0,
+                100,
+                Instant.parse("2025-01-01T00:00:00Z"),
+                Instant.parse("2025-12-01T00:00:00Z"),
+                1
+        );
+        var rs = courseRepository.findByCriteria(criteria);
+        logger.info("result: " + rs);
+        assertNotNull(rs);
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideRepositories")
+    public void findByCriteria_JpaOptionalCriteriaWellHandling(CourseRepository courseRepository) {
+        if (courseRepository instanceof CourseJdbcRepository) {
+            return;
+        }
+        var criteria = new CourseSearchReq(
+                null,
+                0,
+                100,
+                Instant.parse("2025-01-01T00:00:00Z"),
+                null,
+                null
+        );
+        var rs = courseRepository.findByCriteria(criteria);
+        logger.info("result: " + rs);
+        assertNotNull(rs);
+    }
+
+    @Test
+    public void findByCriteria_JdbcOptionalCriteriaError() {
+        var criteria = new CourseSearchReq(
+                null,
+                0,
+                100,
+                Instant.parse("2025-01-01T00:00:00Z"),
+                null,
+                null
+        );
+        assertThrows(Exception.class, () -> courseJdbcRepository.findByCriteria(criteria));
     }
 
     @Order(1)

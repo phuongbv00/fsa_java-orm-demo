@@ -146,12 +146,14 @@ public class CourseJdbcRepository implements CourseRepository {
                         AND (capacity <= ?)
                         AND (course.start_date >= ?)
                         AND (course.end_date <= ?)
+                        AND (course.instructor_id = ?)
                     """, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, criteria.name() + "%");
             stmt.setInt(2, criteria.minCapacity());
             stmt.setInt(3, criteria.maxCapacity());
             stmt.setTimestamp(4, Timestamp.valueOf(LocalDateTime.ofInstant(criteria.minStartDate(), ZoneOffset.UTC)));
             stmt.setTimestamp(5, Timestamp.valueOf(LocalDateTime.ofInstant(criteria.maxEndDate(), ZoneOffset.UTC)));
+            stmt.setInt(6, criteria.instructorId());
             ResultSet rs = stmt.executeQuery();
             return fetchCoursesResultSet(rs);
         } catch (SQLException e) {
@@ -166,8 +168,8 @@ public class CourseJdbcRepository implements CourseRepository {
             course.setId(rs.getInt("course_id"));
             course.setName(rs.getString("name"));
             course.setCapacity(rs.getInt("capacity"));
-            course.setStartDate(rs.getTimestamp("start_date").toInstant());
-            course.setEndDate(rs.getTimestamp("end_date").toInstant());
+            course.setStartDate(Optional.ofNullable(rs.getTimestamp("start_date")).map(Timestamp::toInstant).orElse(null));
+            course.setEndDate(Optional.ofNullable(rs.getTimestamp("end_date")).map(Timestamp::toInstant).orElse(null));
             Instructor instructor = new Instructor();
             instructor.setId(rs.getInt("instructor_id"));
             course.setInstructor(instructor);
