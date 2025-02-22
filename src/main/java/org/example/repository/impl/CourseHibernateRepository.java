@@ -58,7 +58,6 @@ public class CourseHibernateRepository implements CourseRepository {
             ss.getTransaction().begin();
             ss.persist(course);
             ss.getTransaction().commit();
-            ss.detach(course);
             return course;
         }
     }
@@ -69,7 +68,6 @@ public class CourseHibernateRepository implements CourseRepository {
             ss.getTransaction().begin();
             ss.merge(course);
             ss.getTransaction().commit();
-            ss.detach(course);
             return course;
         }
     }
