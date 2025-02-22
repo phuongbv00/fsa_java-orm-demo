@@ -4,14 +4,16 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.Tuple;
 import org.example.config.db.JPAClient;
-import org.example.model.entity.Course;
+import org.example.model.dto.CourseSearchReq;
 import org.example.model.dto.CourseStat;
+import org.example.model.entity.Course;
 import org.example.repository.CourseRepository;
 import org.hibernate.Session;
 import org.hibernate.jpa.spi.NativeQueryConstructorTransformer;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CourseJpaRepository implements CourseRepository {
@@ -39,6 +41,13 @@ public class CourseJpaRepository implements CourseRepository {
     }
 
     @Override
+    public Optional<Course> findById(Integer id) {
+        try (EntityManager em = db.getEntityManager()) {
+            return Optional.ofNullable(em.find(Course.class, id));
+        }
+    }
+
+    @Override
     public List<CourseStat> getCourseStats(int opt) {
         return switch (opt) {
             // Opt 1: JPQL + JPA Tuple
@@ -56,12 +65,38 @@ public class CourseJpaRepository implements CourseRepository {
     }
 
     @Override
-    public void save(Course course) {
+    public Course save(Course course) {
         try (EntityManager em = db.getEntityManager()) {
             em.getTransaction().begin();
             em.persist(course);
             em.getTransaction().commit();
+            return course;
         }
+    }
+
+    @Override
+    public Course update(Course course) {
+        try (EntityManager em = db.getEntityManager()) {
+            em.getTransaction().begin();
+            em.merge(course);
+            em.getTransaction().commit();
+            return course;
+        }
+    }
+
+    @Override
+    public void delete(Integer id) {
+        try (EntityManager em = db.getEntityManager()) {
+            em.getTransaction().begin();
+            Course course = em.find(Course.class, id);
+            em.remove(course);
+            em.getTransaction().commit();
+        }
+    }
+
+    @Override
+    public List<Course> findByCriteria(CourseSearchReq criteria) {
+        return List.of();
     }
 
     private List<CourseStat> getCourseStatsUsingJpqlAndTuple() {

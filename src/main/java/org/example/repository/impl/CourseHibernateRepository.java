@@ -1,14 +1,17 @@
 package org.example.repository.impl;
 
+import jakarta.persistence.EntityManager;
 import org.example.config.db.HibernateClient;
-import org.example.model.entity.Course;
+import org.example.model.dto.CourseSearchReq;
 import org.example.model.dto.CourseStat;
+import org.example.model.entity.Course;
 import org.example.repository.CourseRepository;
 import org.hibernate.Session;
 import org.hibernate.jpa.spi.NativeQueryConstructorTransformer;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CourseHibernateRepository implements CourseRepository {
@@ -36,17 +39,53 @@ public class CourseHibernateRepository implements CourseRepository {
     }
 
     @Override
+    public Optional<Course> findById(Integer id) {
+        try (Session ss = db.getSession()) {
+            return Optional.ofNullable(ss.find(Course.class, id));
+        }
+    }
+
+    @Override
     public List<CourseStat> getCourseStats(int opt) {
         return getCourseStatsUsingNativeQueryAndTupleTransformer();
     }
 
     @Override
-    public void save(Course course) {
+    public Course save(Course course) {
         try (Session ss = db.getSession()) {
             ss.getTransaction().begin();
             ss.persist(course);
             ss.getTransaction().commit();
+            ss.detach(course);
+            return course;
         }
+    }
+
+    @Override
+    public Course update(Course course) {
+        try (Session ss = db.getSession()) {
+            ss.getTransaction().begin();
+            ss.merge(course);
+            ss.getTransaction().commit();
+            ss.detach(course);
+            return course;
+        }
+    }
+
+    @Override
+    public void delete(Integer id) {
+        try (Session ss = db.getSession()) {
+            Course course = new Course();
+            course.setId(id);
+            ss.getTransaction().begin();
+            ss.remove(course);
+            ss.getTransaction().commit();
+        }
+    }
+
+    @Override
+    public List<Course> findByCriteria(CourseSearchReq criteria) {
+        return List.of();
     }
 
     private List<CourseStat> getCourseStatsUsingNativeQueryAndTupleTransformer() {
