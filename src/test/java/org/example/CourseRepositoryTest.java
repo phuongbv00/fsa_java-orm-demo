@@ -4,8 +4,10 @@ import org.example.model.dto.CourseSearchReq;
 import org.example.model.entity.Course;
 import org.example.model.entity.Instructor;
 import org.example.repository.CourseRepository;
-import org.example.repository.impl.CourseJdbcRepository;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -114,14 +116,11 @@ public class CourseRepositoryTest {
 
     @ParameterizedTest
     @MethodSource("provideRepositories")
-    public void findByCriteria_JpaOptionalCriteriaWellHandling(CourseRepository courseRepository) {
-        if (courseRepository instanceof CourseJdbcRepository) {
-            return;
-        }
+    public void findByCriteria_OptionalCriteria_Success(CourseRepository courseRepository) {
         var criteria = new CourseSearchReq(
                 null,
                 0,
-                100,
+                null,
                 Instant.parse("2025-01-01T00:00:00Z"),
                 null,
                 null
@@ -129,19 +128,6 @@ public class CourseRepositoryTest {
         var rs = courseRepository.findByCriteria(criteria);
         logger.info("result: " + rs);
         assertNotNull(rs);
-    }
-
-    @Test
-    public void findByCriteria_JdbcOptionalCriteriaError() {
-        var criteria = new CourseSearchReq(
-                null,
-                0,
-                100,
-                Instant.parse("2025-01-01T00:00:00Z"),
-                null,
-                null
-        );
-        assertThrows(Exception.class, () -> courseJdbcRepository.findByCriteria(criteria));
     }
 
     @Order(1)

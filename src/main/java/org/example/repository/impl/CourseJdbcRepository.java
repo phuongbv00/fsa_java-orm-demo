@@ -9,14 +9,15 @@ import org.example.repository.CourseRepository;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Service
 public class CourseJdbcRepository implements CourseRepository {
+    private final Logger logger = Logger.getLogger(CourseJdbcRepository.class.getName());
     private final JDBCClient db;
 
     public CourseJdbcRepository(JDBCClient db) {
@@ -137,27 +138,45 @@ public class CourseJdbcRepository implements CourseRepository {
 
     @Override
     public List<Course> findByCriteria(CourseSearchReq criteria) {
+        StringBuilder queryBuilder = new StringBuilder("SELECT * FROM course WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+        if (criteria != null) {
+            if (criteria.name() != null) {
+                queryBuilder.append("\n\tAND name LIKE ?");
+                params.add(criteria.name() + "%");
+            }
+            if (criteria.minCapacity() != null) {
+                queryBuilder.append("\n\tAND capacity >= ?");
+                params.add(criteria.minCapacity());
+            }
+            if (criteria.maxCapacity() != null) {
+                queryBuilder.append("\n\tAND capacity <= ?");
+                params.add(criteria.maxCapacity());
+            }
+            if (criteria.minStartDate() != null) {
+                queryBuilder.append("\n\tAND start_date >= ?");
+                params.add(Timestamp.from(criteria.minStartDate()));
+            }
+            if (criteria.maxEndDate() != null) {
+                queryBuilder.append("\n\tAND end_date <= ?");
+                params.add(Timestamp.from(criteria.maxEndDate()));
+            }
+            if (criteria.instructorId() != null) {
+                queryBuilder.append("\n\tAND instructor_id = ?");
+                params.add(criteria.instructorId());
+            }
+        }
         try (Connection conn = db.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement("""
-                    SELECT *
-                    FROM course
-                    WHERE (name LIKE ?)
-                        AND (capacity >= ?)
-                        AND (capacity <= ?)
-                        AND (course.start_date >= ?)
-                        AND (course.end_date <= ?)
-                        AND (course.instructor_id = ?)
-                    """, Statement.RETURN_GENERATED_KEYS);
-            stmt.setString(1, criteria.name() + "%");
-            stmt.setInt(2, criteria.minCapacity());
-            stmt.setInt(3, criteria.maxCapacity());
-            stmt.setTimestamp(4, Timestamp.valueOf(LocalDateTime.ofInstant(criteria.minStartDate(), ZoneOffset.UTC)));
-            stmt.setTimestamp(5, Timestamp.valueOf(LocalDateTime.ofInstant(criteria.maxEndDate(), ZoneOffset.UTC)));
-            stmt.setInt(6, criteria.instructorId());
+            PreparedStatement stmt = conn.prepareStatement(queryBuilder.toString());
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setObject(i + 1, params.get(i));
+            }
             ResultSet rs = stmt.executeQuery();
             return fetchCoursesResultSet(rs);
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            logger.info("\n[JDBC]\n" + queryBuilder);
         }
     }
 
