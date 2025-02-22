@@ -4,6 +4,7 @@ import org.example.config.db.JDBCClient;
 import org.example.model.dto.CourseSearchReq;
 import org.example.model.dto.CourseStat;
 import org.example.model.entity.Course;
+import org.example.model.entity.Instructor;
 import org.example.repository.CourseRepository;
 import org.springframework.stereotype.Service;
 
@@ -165,6 +166,11 @@ public class CourseJdbcRepository implements CourseRepository {
             course.setId(rs.getInt("course_id"));
             course.setName(rs.getString("name"));
             course.setCapacity(rs.getInt("capacity"));
+            course.setStartDate(rs.getTimestamp("start_date").toInstant());
+            course.setEndDate(rs.getTimestamp("end_date").toInstant());
+            Instructor instructor = new Instructor();
+            instructor.setId(rs.getInt("instructor_id"));
+            course.setInstructor(instructor);
             courses.add(course);
         }
         return courses;

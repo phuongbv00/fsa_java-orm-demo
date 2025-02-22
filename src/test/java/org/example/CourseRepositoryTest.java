@@ -23,8 +23,7 @@ import java.util.Random;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -80,6 +79,14 @@ public class CourseRepositoryTest {
         var rs = courseRepository.findAll(2, 1);
         logger.info("result: " + rs);
         assertNotNull(rs);
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideRepositories")
+    public void findById(CourseRepository courseRepository) {
+        var rs = courseRepository.findById(1);
+        logger.info("result: " + rs);
+        assertTrue(rs.isPresent());
     }
 
     @ParameterizedTest
