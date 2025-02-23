@@ -13,7 +13,6 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 @Service
@@ -178,23 +177,6 @@ public class CourseJdbcRepository implements CourseRepository {
             throw new RuntimeException(e);
         } finally {
             logger.info("\n[JDBC]\n" + queryBuilder);
-        }
-    }
-
-    @Override
-    public <R> R withTransaction(Supplier<R> processor) {
-        try (Connection conn = db.getConnection()) {
-            try {
-                conn.setAutoCommit(false);
-                R result = processor.get();
-                conn.commit();
-                return result;
-            } catch (Exception e) {
-                conn.rollback();
-                throw e;
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 

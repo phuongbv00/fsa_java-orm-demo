@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 @Service
 public class CourseJpaRepository implements CourseRepository {
@@ -134,21 +133,6 @@ public class CourseJpaRepository implements CourseRepository {
             }
             TypedQuery<Course> query = em.createQuery(cq.select(root));
             return query.getResultList();
-        }
-    }
-
-    @Override
-    public <R> R withTransaction(Supplier<R> processor) {
-        try (EntityManager em = db.getEntityManager()) {
-            try {
-                em.getTransaction().begin();
-                R result = processor.get();
-                em.getTransaction().commit();
-                return result;
-            } catch (Exception e) {
-                em.getTransaction().rollback();
-                throw e;
-            }
         }
     }
 

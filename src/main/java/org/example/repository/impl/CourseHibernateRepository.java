@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 @Service
 public class CourseHibernateRepository implements CourseRepository {
@@ -118,21 +117,6 @@ public class CourseHibernateRepository implements CourseRepository {
             TypedQuery<Course> query = ss.createQuery(queryBuilder.toString(), Course.class);
             params.forEach(query::setParameter);
             return query.getResultList();
-        }
-    }
-
-    @Override
-    public <R> R withTransaction(Supplier<R> processor) {
-        try (Session ss = db.getSession()) {
-            try {
-                ss.getTransaction().begin();
-                R result = processor.get();
-                ss.getTransaction().commit();
-                return result;
-            } catch (Exception e) {
-                ss.getTransaction().rollback();
-                throw e;
-            }
         }
     }
 

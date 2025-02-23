@@ -2,7 +2,6 @@ package org.example.repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public interface JpaRepository<E, ID> {
     List<E> findAll();
@@ -16,6 +15,4 @@ public interface JpaRepository<E, ID> {
     E update(E entity);
 
     void delete(ID id);
-
-    <R> R withTransaction(Supplier<R> processor);
 }
