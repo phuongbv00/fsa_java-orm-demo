@@ -1,6 +1,6 @@
-drop procedure if exists proc_process_enrollments;
+drop procedure if exists usp_process_enrollments;
 
-create procedure proc_process_enrollments
+create procedure usp_process_enrollments
     @max_student_enrollment_count int,
     @num_processed int out,
     @num_skipped int out,
@@ -8,6 +8,8 @@ create procedure proc_process_enrollments
     @num_rejected int out
 as
 begin
+    set nocount on;
+
     set @num_processed = 0;
     set @num_skipped = 0;
     set @num_approved = 0;
