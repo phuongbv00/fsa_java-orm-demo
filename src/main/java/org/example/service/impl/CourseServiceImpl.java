@@ -1,8 +1,9 @@
 package org.example.service.impl;
 
 import org.example.model.dto.CourseDTO;
+import org.example.model.dto.CourseWithInstructorDTO;
+import org.example.model.dto.InstructorDTO;
 import org.example.model.entity.Course;
-import org.example.model.entity.Instructor;
 import org.example.repository.CourseRepository;
 import org.example.repository.InstructorRepository;
 import org.example.service.CourseService;
@@ -50,6 +51,11 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.delete(id);
     }
 
+    @Override
+    public List<CourseWithInstructorDTO> findAllWithInstructor() {
+        return courseRepository.findAll().stream().map(this::toWithInstructorDTO).toList();
+    }
+
     private CourseDTO toDTO(Course course) {
         CourseDTO courseDTO = new CourseDTO();
         courseDTO.setId(course.getId());
@@ -57,7 +63,26 @@ public class CourseServiceImpl implements CourseService {
         courseDTO.setCapacity(course.getCapacity());
         courseDTO.setStartDate(FormatUtil.instantToLocalDateString(course.getStartDate()));
         courseDTO.setEndDate(FormatUtil.instantToLocalDateString(course.getEndDate()));
-        courseDTO.setInstructorId(Optional.ofNullable(course.getInstructor()).map(Instructor::getId).orElse(null));
+        if (course.getInstructor() != null) {
+            courseDTO.setInstructorId(course.getInstructor().getId());
+        }
+        return courseDTO;
+    }
+
+    private CourseWithInstructorDTO toWithInstructorDTO(Course course) {
+        CourseWithInstructorDTO courseDTO = new CourseWithInstructorDTO();
+        courseDTO.setId(course.getId());
+        courseDTO.setName(course.getName());
+        courseDTO.setCapacity(course.getCapacity());
+        courseDTO.setStartDate(FormatUtil.instantToLocalDateString(course.getStartDate()));
+        courseDTO.setEndDate(FormatUtil.instantToLocalDateString(course.getEndDate()));
+        if (course.getInstructor() != null) {
+            courseDTO.setInstructorId(course.getInstructor().getId());
+            InstructorDTO instructorDTO = new InstructorDTO();
+            instructorDTO.setId(course.getInstructor().getId());
+            instructorDTO.setName(course.getInstructor().getName());
+            courseDTO.setInstructor(instructorDTO);
+        }
         return courseDTO;
     }
 

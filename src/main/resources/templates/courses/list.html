@@ -13,6 +13,7 @@
         <tr>
             <th>ID</th>
             <th>Name</th>
+            <th>Instructor</th>
             <th>Capacity</th>
             <th>Start Date</th>
             <th>End Date</th>
@@ -23,6 +24,7 @@
         <tr th:each="course : ${courses}">
             <td th:text="${course.id}"></td>
             <td th:text="${course.name}"></td>
+            <td th:text="${course.instructor.name}"></td>
             <td th:text="${course.capacity}"></td>
             <td th:text="${course.startDate}"></td>
             <td th:text="${course.endDate}"></td>

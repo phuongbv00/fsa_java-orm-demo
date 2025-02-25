@@ -49,7 +49,7 @@ public class Course {
     @Column(name = "end_date")
     private Instant endDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "instructor_id")
     private Instructor instructor;
 

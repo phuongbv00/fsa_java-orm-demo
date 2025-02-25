@@ -27,7 +27,7 @@ public class CourseController {
 
     @GetMapping
     public String list(Model model) {
-        model.addAttribute("courses", courseService.findAll());
+        model.addAttribute("courses", courseService.findAllWithInstructor());
         return "courses/list";
     }
 
