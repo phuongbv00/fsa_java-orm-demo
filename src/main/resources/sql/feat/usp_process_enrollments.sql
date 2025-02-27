@@ -1,19 +1,12 @@
 drop procedure if exists usp_process_enrollments;
 
-create procedure usp_process_enrollments
-    @max_student_enrollment_count int,
-    @num_processed int out,
-    @num_skipped int out,
-    @num_approved int out,
-    @num_rejected int out
+create procedure usp_process_enrollments @max_student_enrollment_count int,
+                                         @num_processed int out
 as
 begin
     set nocount on;
 
     set @num_processed = 0;
-    set @num_skipped = 0;
-    set @num_approved = 0;
-    set @num_rejected = 0;
 
     declare @enrollment_id int;
     declare @course_id int;
@@ -47,8 +40,6 @@ begin
                     set comment = 'WAIT_FOR_COURSE_DATE_FINALIZATION'
                     where id = @enrollment_id;
 
-                    set @num_skipped+=1;
-
                     fetch next from cur into @enrollment_id, @course_id, @student_id;
                     continue;
                 end;
@@ -60,7 +51,6 @@ begin
                         comment = 'COURSE_ALREADY_STARTED'
                     where id = @enrollment_id;
 
-                    set @num_rejected+=1;
                     set @num_processed+=1;
 
                     fetch next from cur into @enrollment_id, @course_id, @student_id;
@@ -74,7 +64,6 @@ begin
                         comment = 'COURSE_ALREADY_ENDED'
                     where id = @enrollment_id;
 
-                    set @num_rejected+=1;
                     set @num_processed+=1;
 
                     fetch next from cur into @enrollment_id, @course_id, @student_id;
@@ -95,7 +84,6 @@ begin
                         comment = 'COURSE_GOT_MAX_CAPACITY'
                     where id = @enrollment_id;
 
-                    set @num_rejected+=1;
                     set @num_processed+=1;
 
                     fetch next from cur into @enrollment_id, @course_id, @student_id;
@@ -116,7 +104,6 @@ begin
                         comment = 'STUDENT_GOT_MAX_NUMBER_OF_ENROLLMENTS'
                     where id = @enrollment_id;
 
-                    set @num_rejected+=1;
                     set @num_processed+=1;
 
                     fetch next from cur into @enrollment_id, @course_id, @student_id;
@@ -127,7 +114,6 @@ begin
             set status = 'APPROVED'
             where id = @enrollment_id;
 
-            set @num_approved+=1;
             set @num_processed+=1;
 
             fetch next from cur into @enrollment_id, @course_id, @student_id;
