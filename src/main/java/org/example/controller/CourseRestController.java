@@ -16,6 +16,7 @@ import java.util.Random;
 @RequestMapping("/api/courses")
 public class CourseRestController {
     private final CourseService courseService;
+    // Memory leak demo
     private final Map<String, Object> requests = new HashMap<>();
     private final Random random = new Random();
 
