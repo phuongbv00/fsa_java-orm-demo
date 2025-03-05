@@ -1,7 +1,7 @@
 package org.example.model.entity;
 
 import jakarta.persistence.*;
-import org.example.model.constant.EnrollmentStatus;
+import org.example.model.enums.EnrollmentStatus;
 
 import java.time.Instant;
 import java.util.Objects;

@@ -1,8 +1,13 @@
 package org.example.model.dto;
 
+import jakarta.validation.constraints.Max;
+import org.example.validation.constraint.ValidCourseName;
+
 public class CourseDTO {
     private Integer id;
+    @ValidCourseName
     private String name;
+    @Max(value = 100, message = "Max capacity is 100")
     private Integer capacity;
     // TODO: Thymeleaf only handles LocalDate and String, does not accept Instant
     private String startDate;

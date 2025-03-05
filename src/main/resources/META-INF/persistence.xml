@@ -30,7 +30,7 @@
             <property name="hibernate.format_sql" value="true" />
             <property name="hibernate.highlight_sql" value="true" />
 
-            <property name="hibernate.connection.pool_size" value="10"/>
+            <property name="hibernate.connection.pool_size" value="1"/>
         </properties>
 
     </persistence-unit>

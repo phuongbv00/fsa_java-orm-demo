@@ -1,12 +1,12 @@
 package org.example.controller;
 
+import jakarta.validation.Valid;
 import org.example.model.dto.CourseDTO;
 import org.example.repository.InstructorRepository;
 import org.example.service.CourseService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -39,7 +39,7 @@ public class CourseController {
     }
 
     @PostMapping
-    public String saveOrUpdate(@ModelAttribute("course") @Validated CourseDTO course, BindingResult result, Model model) {
+    public String saveOrUpdate(@Valid @ModelAttribute("course") CourseDTO course, BindingResult result, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("instructors", instructorRepository.findAll());
             return "courses/form";

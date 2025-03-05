@@ -1,4 +1,4 @@
-package org.example.model.constant;
+package org.example.model.enums;
 
 public enum EnrollmentStatus {
     PENDING,
