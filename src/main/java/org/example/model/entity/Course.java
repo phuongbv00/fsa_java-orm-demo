@@ -39,6 +39,7 @@ public class Course {
     @Column(name = "course_id")
     private Integer id;
 
+    @Column(unique = true)
     private String name;
 
     private Integer capacity;
