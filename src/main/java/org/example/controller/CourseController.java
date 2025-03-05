@@ -31,24 +31,20 @@ public class CourseController {
         return "courses/list";
     }
 
-    @GetMapping("/new")
-    public String showCreateForm(Model model) {
+    @GetMapping("/add")
+    public String showAddForm(Model model) {
         model.addAttribute("course", new CourseDTO());
         model.addAttribute("instructors", instructorRepository.findAll());
-        return "courses/form";
+        return "courses/add";
     }
 
-    @PostMapping
-    public String saveOrUpdate(@Valid @ModelAttribute("course") CourseDTO course, BindingResult result, Model model) {
+    @PostMapping("/add")
+    public String add(@Valid @ModelAttribute("course") CourseDTO course, BindingResult result, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("instructors", instructorRepository.findAll());
-            return "courses/form";
+            return "courses/add";
         }
-        if (course.getId() == null) {
-            courseService.save(course);
-        } else {
-            courseService.update(course);
-        }
+        courseService.save(course);
         return "redirect:/courses";
     }
 
@@ -58,8 +54,18 @@ public class CourseController {
         if (course.isPresent()) {
             model.addAttribute("course", course.get());
             model.addAttribute("instructors", instructorRepository.findAll());
-            return "courses/form";
+            return "courses/edit";
         }
+        return "redirect:/courses";
+    }
+
+    @PostMapping("/edit/{id}")
+    public String edit(@Valid @ModelAttribute("course") CourseDTO course, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("instructors", instructorRepository.findAll());
+            return "courses/edit";
+        }
+        courseService.update(course);
         return "redirect:/courses";
     }
 
