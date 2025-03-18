@@ -11,10 +11,10 @@
         </description>
 
         <!-- The <class/> element registers our annotated entity class. -->
-        <class>org.example.model.entity.Course</class>
-        <class>org.example.model.entity.Student</class>
-        <class>org.example.model.entity.Instructor</class>
-        <class>org.example.model.entity.Enrollment</class>
+        <class>fsa.java.orm.demo.model.entity.Course</class>
+        <class>fsa.java.orm.demo.model.entity.Student</class>
+        <class>fsa.java.orm.demo.model.entity.Instructor</class>
+        <class>fsa.java.orm.demo.model.entity.Enrollment</class>
 
         <properties>
             <!-- Database connection settings -->
