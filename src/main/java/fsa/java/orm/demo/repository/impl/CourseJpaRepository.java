@@ -163,7 +163,7 @@ public class CourseJpaRepository implements CourseRepository {
         // count(e.student.id) returns Long -> DTO depends on JPQL
         try (EntityManager em = db.getEntityManager()) {
             return em.createQuery("""
-                            select new org.example.model.dto.CourseStat(
+                            select new fsa.java.orm.demo.model.dto.CourseStat(
                                 c.id,
                                 c.name,
                                 count(e.student.id)
