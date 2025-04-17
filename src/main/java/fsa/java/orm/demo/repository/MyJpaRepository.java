@@ -3,7 +3,7 @@ package fsa.java.orm.demo.repository;
 import java.util.List;
 import java.util.Optional;
 
-public interface JpaRepository<E, ID> {
+public interface MyJpaRepository<E, ID> {
     List<E> findAll();
 
     List<E> findAll(int page, int size);

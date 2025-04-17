@@ -6,7 +6,7 @@ import fsa.java.orm.demo.model.entity.Course;
 
 import java.util.List;
 
-public interface CourseRepository extends JpaRepository<Course, Integer> {
+public interface CourseRepository extends MyJpaRepository<Course, Integer> {
     List<CourseStat> getCourseStats(int opt);
 
     List<Course> findByCriteria(CourseSearchReq criteria);
